@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/constants/*": [
+        "src/constants/*"
+      ],
+      "@/controllers/*": [
+        "./src/controllers/*"
+      ],
+      "@/database/*": [
+        "./src/database/*"
+      ],
+      "@/errors/*": [
+        "./src/errors/*"
+      ],
+      "@/middleware/*": [
+        "./src/middleware/*"
+      ],
+      "@/models/*": [
+        "./src/models/*"
+      ],
+      "@/routes/*": [
+        "./src/routes/*"
+      ],
+      "@/services/*": [
+        "./src/services/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/types": [
+        "./src/types/index.ts"
+      ]
+    }
+  }
+}

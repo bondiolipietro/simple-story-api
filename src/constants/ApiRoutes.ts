@@ -1,7 +1,11 @@
 class ApiRoutes {
-  public static STORY = '/story'
+  static readonly SWAGGER = '/api-docs'
 
-  public static USER = '/user'
+  static readonly AUTH = '/auth'
+
+  static readonly STORY = '/story'
+
+  static readonly USER = '/user'
 }
 
 export default ApiRoutes

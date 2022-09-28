@@ -21,12 +21,22 @@
         "prettier"
     ],
     "settings": {
+        "import/parsers": {
+            "@typescript-eslint/parser": [
+                ".ts",
+                ".tsx"
+            ]
+        },
         "import/resolver": {
             "typescript": {}
         }
     },
     "rules": {
         "prettier/prettier": "error",
+        "import/no-named-as-default-member": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "import/no-unresolved": "error",
         "import/extensions": [
             "error",
             "ignorePackages",
