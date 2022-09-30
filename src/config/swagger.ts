@@ -17,6 +17,15 @@ const swaggerDefinition = {
         description: 'Development server',
       },
     ],
+    components: {
+      securitySchemes: {
+        cookieAuth: {
+          type: 'jwt',
+          in: 'cookie',
+          name: 'accessToken',
+        },
+      },
+    },
     tags: [
       {
         name: 'auth',

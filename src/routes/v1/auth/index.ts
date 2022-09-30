@@ -1,5 +1,7 @@
 import express from 'express'
 
+import { authControlller } from '@/controllers/auth'
+
 const router = express.Router()
 
 /**
@@ -19,61 +21,13 @@ const router = express.Router()
  *     responses:
  *       200:
  *         description: Returns a success message and a jwt token
+ *         headers:
+ *           accessToken:
+ *             schema:
+ *               type: string
+ *               example: accessToken=abcde12345; Path=/; HttpOnly
  */
-router.post('/login', (req, res) => {
-  res.send('post /login')
-})
-
-/**
- * @swagger
- * /v1/auth/refresh-login:
- *   post:
- *     tags:
- *       - auth
- *     summary: Refresh a logged user's jwt token
- *     description: Refresh a logged user's jwt token
- *     requestBody:
- *       description: Expired jwt token
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Returns a success message and a new jwt token
- */
-router.post('/refresh-login', (req, res) => {
-  res.send('post /refresh-login')
-})
-
-/**
- * @swagger
- * /v1/auth/recover-password:
- *   post:
- *     tags:
- *       - auth
- *     summary: Change a user's password using a recovery token
- *     description: Change a user's password using a recovery token
- *     parameters:
- *       - in: query
- *         name: recoveryToken
- *         required: true
- *         description: The recovery token generated and sent to the user's email
- *         schema:
- *           type: string
- *     requestBody:
- *       description: New password information
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Returns a success message if the password was changed
- */
-router.post('/recover-password/send-email', (req, res) => {
-  res.send('post /recover-password/send-email')
-})
+router.post('/login', authControlller.login)
 
 /**
  * @swagger
@@ -93,8 +47,26 @@ router.post('/recover-password/send-email', (req, res) => {
  *       200:
  *         description: Returns a success message regardless of whether the email exists or not
  */
-router.post('/recover-password/send-email', (req, res) => {
-  res.send('post /recover-password/send-email')
-})
+router.post('/recover-password/send-email', authControlller.sendRecoverPasswordEmail)
+
+/**
+ * @swagger
+ * /v1/auth/recover-password:
+ *   post:
+ *     tags:
+ *       - auth
+ *     summary: Recover user's password
+ *     description: Generate a recover token and sends it to the user's email
+ *     requestBody:
+ *       description: Object containing user's email, password and token
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Returns a success message
+ */
+router.post('/recover-password', authControlller.recoverPassword)
 
 export default router

@@ -1,6 +1,75 @@
 import express from 'express'
 
+import { userController } from '@/controllers/user'
+import { authenticateUser } from '@/middleware/authentication'
+
 const router = express.Router()
+
+/**
+ * @swagger
+ * /v1/user/register:
+ *   post:
+ *     tags:
+ *       - user
+ *     summary: Creates a new user
+ *     description: Creates a new user
+ *     requestBody:
+ *       description: User to be created
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Returns the id of the created user and a jwt token
+ *       400:
+ *         description: User already exists
+ */
+router.post('/register', userController.createUser)
+
+/**
+ * @swagger
+ * /v1/user/verify-email:
+ *   post:
+ *     tags:
+ *       - user
+ *     summary: Verify user email
+ *     description: Verify user email using the token sent to the user's email
+ *     requestBody:
+ *       description: Object containing the token and email
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: User verified
+ *       400:
+ *         description: User does not exist / Invalid token / User already verified
+ */
+router.post('verify-email', userController.verifyUserEmail)
+
+/**
+ * @swagger
+ * /v1/user/resend-verification-email:
+ *   post:
+ *     tags:
+ *       - user
+ *     summary: Resend verification email
+ *     description: Regenerates token and send a new verification email to the user's email
+ *     requestBody:
+ *       description: Object containing the user's email
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Verification email sent
+ *       400:
+ *         description: User does not exist / User already verified
+ */
+router.post('resend-verification-email', userController.resendVerificationEmail)
 
 /**
  * @swagger
@@ -8,6 +77,8 @@ const router = express.Router()
  *   get:
  *     tags:
  *       - user
+ *     security:
+ *       - cookieAuth: []
  *     summary: Get user by id
  *     description: Get user information by id, needs authentication, otherwise preview route should be used to retrieve only public information
  *     parameters:
@@ -16,14 +87,12 @@ const router = express.Router()
  *         required: true
  *         description: Numeric ID of the user to retrieve
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: Returns user's information
  */
-router.get('/:id', (req, res) => {
-  res.status(200).send('get /:id')
-})
+router.get('/:id', authenticateUser, userController.getUserById)
 
 /**
  * @swagger
@@ -39,36 +108,12 @@ router.get('/:id', (req, res) => {
  *         required: true
  *         description: Numeric ID of the user to retrieve
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: Returns user's information preview
  */
-router.get('/:id/preview', (req, res) => {
-  res.send('get /:id/preview')
-})
-
-/**
- * @swagger
- * /v1/user:
- *   post:
- *     tags:
- *       - user
- *     summary: Creates a new user
- *     description: Creates a new user
- *     requestBody:
- *       description: User to be created
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *     responses:
- *       200:
- *         description: Returns the id of the created user and a jwt token
- */
-router.post('/register', (req, res) => {
-  res.send('post /register')
-})
+router.get('/:id/preview', userController.getUserPreviewById)
 
 /**
  * @swagger
@@ -76,6 +121,8 @@ router.post('/register', (req, res) => {
  *   put:
  *     tags:
  *       - user
+ *     security:
+ *       - cookieAuth: []
  *     summary: Updates user information
  *     description: Updates user information, needs authentication
  *     parameters:
@@ -84,7 +131,7 @@ router.post('/register', (req, res) => {
  *         required: true
  *         description: Numeric ID of the user to be updated
  *         schema:
- *           type: integer
+ *           type: string
  *     requestBody:
  *       description: User to be updated
  *       content:
@@ -95,9 +142,7 @@ router.post('/register', (req, res) => {
  *       200:
  *         description: Returns the id of the updated user
  */
-router.put('/:id', (req, res) => {
-  res.send('put /:id')
-})
+router.put('/:id', authenticateUser, userController.updateUser)
 
 /**
  * @swagger
@@ -105,6 +150,8 @@ router.put('/:id', (req, res) => {
  *   put:
  *     tags:
  *       - user
+ *     security:
+ *       - cookieAuth: []
  *     summary: Updates user password
  *     description: Updates user password, needs authentication
  *     parameters:
@@ -113,7 +160,7 @@ router.put('/:id', (req, res) => {
  *         required: true
  *         description: Numeric ID of the user to be updated
  *         schema:
- *           type: integer
+ *           type: string
  *     requestBody:
  *       description: User's new password object
  *       content:
@@ -124,9 +171,7 @@ router.put('/:id', (req, res) => {
  *       200:
  *         description: Returns a success message
  */
-router.put('/:id/password', (req, res) => {
-  res.send('put /:id/password')
-})
+router.put('/:id/password', authenticateUser, userController.updateUserPassword)
 
 /**
  * @swagger
@@ -134,6 +179,8 @@ router.put('/:id/password', (req, res) => {
  *   delete:
  *     tags:
  *       - user
+ *     security:
+ *       - cookieAuth: []
  *     summary: Deletes user
  *     description: Deletes user, needs authentication
  *     parameters:
@@ -142,13 +189,11 @@ router.put('/:id/password', (req, res) => {
  *         required: true
  *         description: Numeric ID of the user to be deleted
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: Returns the id of the deleted user
  */
-router.delete('/:id', (req, res) => {
-  res.send('delete /:id')
-})
+router.delete('/:id', authenticateUser, userController.deleteUser)
 
 export default router

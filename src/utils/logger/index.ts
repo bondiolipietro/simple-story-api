@@ -23,16 +23,21 @@ const BASE_LOGGER_CONFIG: winston.LoggerOptions = {
     winston.format.json(),
   ),
   defaultMeta: {
-    application: ApiInfo.APPLICATION_NAME,
+    application: ApiInfo.NAME,
   },
 }
 
 const getLoggerConfig = () => {
+  console.log('Generating logger configurations...')
   const loggerTransports = []
 
   if (process.env.ENABLE_SEQ === 'true') {
     loggerTransports.push(seqTransport)
   }
+  /**
+   * If not in production, logs will also go to the `console` with the format:
+   * `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+   */
   if (process.env.NODE_ENV !== 'production') {
     const consoleTransport = new winston.transports.Console({
       format: winston.format.simple(),
@@ -43,21 +48,13 @@ const getLoggerConfig = () => {
 
   BASE_LOGGER_CONFIG.transports = loggerTransports
 
+  console.log('Logger configuration generated.')
+
   return BASE_LOGGER_CONFIG
 }
 
 const logger = winston.createLogger(getLoggerConfig())
 
-/**
- * If not in production, logs will also go to the `console` with the format:
- * `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
- */
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    }),
-  )
-}
+logger.info('Logger initialized.')
 
 export { logger, getLoggerConfig }
