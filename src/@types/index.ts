@@ -16,7 +16,6 @@ export type DefaultResponse<T = any> = Response<{
 }>
 
 export type MediaContent = {
-  id: string
   title: string
   url: string
   alt?: string

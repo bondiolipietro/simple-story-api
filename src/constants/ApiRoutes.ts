@@ -8,4 +8,4 @@ class ApiRoutes {
   static readonly USER = '/user'
 }
 
-export default ApiRoutes
+export { ApiRoutes }

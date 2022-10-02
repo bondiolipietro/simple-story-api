@@ -1,8 +1,8 @@
-import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerJSDoc, { Options, SwaggerDefinition } from 'swagger-jsdoc'
 
 import { ApiInfo } from '@/constants/ApiInfo'
 
-const swaggerDefinition = {
+const swaggerDefinition: SwaggerDefinition = {
   openapi: '3.0.0',
   info: {
     title: ApiInfo.NAME,
@@ -43,7 +43,7 @@ const swaggerDefinition = {
   },
 }
 
-const options = {
+const options: Options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
   apis: ['./src/routes/**/*.ts'],

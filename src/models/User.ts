@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose'
+import { Schema, model, Types, Model } from 'mongoose'
 import bcrypt from 'bcrypt'
 
 import { MediaContent } from 'src/@types'
@@ -8,7 +8,7 @@ enum UserRole {
   USER = 'user',
 }
 
-interface IUser {
+type IUser = {
   _id: Types.ObjectId
   name: string
   nickname: string
@@ -33,14 +33,22 @@ type IPrivateUserInfo = Pick<
 
 type IPublicUserInfo = Pick<IUser, '_id' | 'name' | 'nickname' | 'description' | 'email' | 'avatar'>
 
-const UserSchema = new Schema<IUser>({
+type IUserDocument = Document & IUser
+
+type IUserModel = Model<IUserDocument>
+
+const UserSchema = new Schema<IUserDocument>({
   name: { type: String, required: true },
   nickname: { type: String, required: false },
   description: String,
   email: { type: String, required: true },
   secondaryEmail: String,
   password: { type: String, required: true },
-  avatar: { type: Object, required: true },
+  avatar: {
+    title: String,
+    url: String,
+    alt: String,
+  },
   role: {
     type: String,
     enum: UserRole,
@@ -67,6 +75,6 @@ UserSchema.method('isValidPassword', async function (password: string) {
   return isMatch
 })
 
-const User = model<IUser>('User', UserSchema)
+const User = model<IUserDocument, IUserModel>('User', UserSchema)
 
 export { User, IUser, IPrivateUserInfo, IPublicUserInfo }

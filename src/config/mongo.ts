@@ -1,0 +1,17 @@
+type MongoConfig = {
+  host: string
+  port: number
+  username?: string
+  password?: string
+  database: string
+}
+
+const mongoConfig: MongoConfig = {
+  host: process.env.MONGO_URL || 'localhost',
+  port: Number(process.env.MONGO_PORT) || 27017,
+  username: process.env.MONGO_USER,
+  password: process.env.MONGO_PASS,
+  database: process.env.MONGO_DB,
+}
+
+export { mongoConfig }

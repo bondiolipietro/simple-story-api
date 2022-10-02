@@ -3,8 +3,16 @@ import { StatusCodes } from 'http-status-codes'
 import crypto from 'crypto'
 
 import { User } from '@/models/User'
-import { MailService } from '@/services/mailService'
-import { logger } from '@/utils/logger'
+import { mailer } from '@/services/mailer'
+import {
+  InvalidPasswordError,
+  InvalidTokenError,
+  UnauthorizedError,
+  UserAlreadyExistsError,
+  UserAlreadyVerifiedError,
+  UserNotFoundError,
+} from '@/errors/index'
+import { ResponseUtil } from '@/utils/ResponseUtil'
 import {
   CreateUserRequest,
   CreateUserResponse,
@@ -23,15 +31,13 @@ import {
   VerifyUserEmailRequest,
   VerifyUserEmailResponse,
 } from '@/types'
+import { mailQueue } from '@/services/mail-queue'
 
 const createUser = async (req: CreateUserRequest, res: CreateUserResponse) => {
   const { email } = req.body
 
   if (await User.findOne({ email })) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User already exists',
-    })
+    throw new UserAlreadyExistsError()
   }
 
   const verificationToken = crypto.randomBytes(40).toString('hex')
@@ -47,19 +53,13 @@ const createUser = async (req: CreateUserRequest, res: CreateUserResponse) => {
     verificationToken,
   })
 
-  await MailService.sendEmail({
+  await mailQueue.add({
     to: user.email,
     subject: 'Verify your email',
-    html: `<a href="${process.env.APP_URL}/user/verify-email?token=${verificationToken}&email=${user.email}">Verify your email</a>`,
+    body: `<a href="${process.env.APP_URL}/user/verify-email?token=${verificationToken}&email=${user.email}">Verify your email</a>`,
   })
 
-  res.status(StatusCodes.CREATED).json({
-    status: 'success',
-    message: 'User created',
-    data: {
-      _id: user.id,
-    },
-  })
+  ResponseUtil.Created(res, 'User created', { _id: user.id }).Send()
 }
 
 const verifyUserEmail = async (req: VerifyUserEmailRequest, res: VerifyUserEmailResponse) => {
@@ -68,37 +68,22 @@ const verifyUserEmail = async (req: VerifyUserEmailRequest, res: VerifyUserEmail
   const user = await User.findOne({ email })
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
   if (user.isVerified) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User already verified',
-    })
+    throw new UserAlreadyVerifiedError()
   }
 
   if (user.verificationToken !== token) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'Invalid token',
-    })
+    throw new InvalidTokenError()
   }
 
   user.isVerified = true
   user.verificationToken = undefined
   await user.save()
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'User verified',
-    data: {
-      _id: user.id,
-    },
-  })
+  ResponseUtil.Ok(res, 'User verified', { _id: user.id }).Send()
 }
 
 const resendVerificationEmail = async (req: ResendVerificationEmailRequest, res: ResendVerificationEmailResponse) => {
@@ -107,32 +92,23 @@ const resendVerificationEmail = async (req: ResendVerificationEmailRequest, res:
   const user = await User.findOne({ email })
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
   if (user.isVerified) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User already verified',
-    })
+    throw new UserAlreadyVerifiedError()
   }
 
   const newVerificationToken = crypto.randomBytes(40).toString('hex')
   await User.findOneAndUpdate({ email }, { verificationToken: newVerificationToken }, { new: true })
 
-  MailService.sendEmail({
+  mailer.sendEmail({
     to: user.email,
     subject: 'Verify your email',
-    html: `<a href="${process.env.APP_URL}/user/verify-email?token=${newVerificationToken}&email=${user.email}">Verify your email</a>`,
+    body: `<a href="${process.env.APP_URL}/user/verify-email?token=${newVerificationToken}&email=${user.email}">Verify your email</a>`,
   })
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'Verification email sent',
-  })
+  ResponseUtil.Ok(res, 'Verification email sent').Send()
 }
 
 const getUserById = async (req: GetUserByIdRequest, res: GetUserByIdResponse) => {
@@ -142,19 +118,13 @@ const getUserById = async (req: GetUserByIdRequest, res: GetUserByIdResponse) =>
   console.info(req.user)
 
   if (req.user.id !== id) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      status: 'error',
-      message: 'Unauthorized',
-    })
+    throw new UnauthorizedError()
   }
 
   const user = await User.findById(id)
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
   res.status(StatusCodes.OK).json({
@@ -180,43 +150,30 @@ const getUserPreviewById = async (req: GetUserPreviewByIdRequest, res: GetUserPr
   const user = await User.findById(id)
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'User found',
-    data: {
-      _id: user.id,
-      name: user.name,
-      nickname: user.nickname,
-      email: user.email,
-      description: user.description,
-      avatar: user.avatar,
-    },
-  })
+  ResponseUtil.Ok(res, 'User found', {
+    _id: user.id,
+    name: user.name,
+    nickname: user.nickname,
+    email: user.email,
+    description: user.description,
+    avatar: user.avatar,
+  }).Send()
 }
 
 const updateUser = async (req: UpdateUserRequest, res: UpdateUserResponse) => {
   const { id } = req.params
 
   if (req.user.id !== id) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      status: 'error',
-      message: 'Unauthorized',
-    })
+    throw new UnauthorizedError()
   }
 
   const user = await User.findById(id)
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
   const { name, nickname, description, secondaryEmail, avatar } = req.body
@@ -229,32 +186,20 @@ const updateUser = async (req: UpdateUserRequest, res: UpdateUserResponse) => {
 
   await user.save()
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'User updated',
-    data: {
-      _id: user.id,
-    },
-  })
+  ResponseUtil.Ok(res, 'User updated', { _id: user.id }).Send()
 }
 
 const updateUserPassword = async (req: UpdateUserPasswordRequest, res: UpdateUserPasswordResponse) => {
   const { id } = req.params
 
   if (req.user.id !== id) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      status: 'error',
-      message: 'Unauthorized',
-    })
+    throw new UnauthorizedError()
   }
 
   const user = await User.findById(id)
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
   const { password, newPassword } = req.body
@@ -262,59 +207,38 @@ const updateUserPassword = async (req: UpdateUserPasswordRequest, res: UpdateUse
   const isPasswordCorrect = await user.isValidPassword(password)
 
   if (!isPasswordCorrect) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'Invalid password',
-    })
+    throw new InvalidPasswordError()
   }
 
   user.password = newPassword
 
   await user.save()
 
-  MailService.sendEmail({
+  mailer.sendEmail({
     to: user.email,
     subject: 'Password changed',
-    html: 'Your password has been changed',
+    body: 'Your password has been changed',
   })
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'Password updated',
-    data: {
-      _id: user.id,
-    },
-  })
+  ResponseUtil.Ok(res, 'Password changed', { _id: user.id }).Send()
 }
 
 const deleteUser = async (req: DeleteUserRequest, res: DeleteUserResponse) => {
   const { id } = req.params
 
   if (req.user.id !== id) {
-    return res.status(StatusCodes.UNAUTHORIZED).json({
-      status: 'error',
-      message: 'Unauthorized',
-    })
+    throw new UnauthorizedError()
   }
 
   const user = await User.findById(id)
 
   if (!user) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
-      status: 'error',
-      message: 'User does not exist',
-    })
+    throw new UserNotFoundError()
   }
 
-  await user.remove()
+  user.delete()
 
-  res.status(StatusCodes.OK).json({
-    status: 'success',
-    message: 'User deleted',
-    data: {
-      _id: user.id,
-    },
-  })
+  ResponseUtil.Ok(res, 'User deleted', { _id: user.id }).Send()
 }
 
 export const userController = {

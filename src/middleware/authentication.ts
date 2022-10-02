@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes'
 
 import { JwtUtil } from '@/utils/JwtUtil'
 import { User } from '@/models/User'
-import { logger } from '@/utils/logger'
 import { DefaultAuthRequest, DefaultResponse } from '@/types'
 
 const authenticateUser = async (req: DefaultAuthRequest, res: DefaultResponse, next) => {

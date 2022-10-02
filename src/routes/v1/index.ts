@@ -1,8 +1,8 @@
 import { Express } from 'express'
 
-import ApiRoutes from '@/constants/ApiRoutes'
-import ApiVersions from '@/constants/ApiVersions'
-import { logger } from '@/utils/logger'
+import { ApiRoutes } from '@/constants/ApiRoutes'
+import { ApiVersions } from '@/constants/ApiVersions'
+import { logger } from '@/services/logger'
 
 import authRouter from './auth'
 import userRouter from './user'

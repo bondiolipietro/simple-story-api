@@ -47,7 +47,7 @@ router.post('/register', userController.createUser)
  *       400:
  *         description: User does not exist / Invalid token / User already verified
  */
-router.post('verify-email', userController.verifyUserEmail)
+router.post('/verify-email', userController.verifyUserEmail)
 
 /**
  * @swagger
@@ -69,7 +69,7 @@ router.post('verify-email', userController.verifyUserEmail)
  *       400:
  *         description: User does not exist / User already verified
  */
-router.post('resend-verification-email', userController.resendVerificationEmail)
+router.post('/resend-verification-email', userController.resendVerificationEmail)
 
 /**
  * @swagger
