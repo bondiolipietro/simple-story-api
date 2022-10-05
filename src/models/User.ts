@@ -23,6 +23,8 @@ type IUser = {
   verifiedAt?: Date
   passwordResetToken?: string
   passwordResetExpires?: Date
+  createdAt: Date
+  updatedAt: Date
   isValidPassword: (password: string) => Promise<boolean>
 }
 
@@ -37,32 +39,37 @@ type IUserDocument = Document & IUser
 
 type IUserModel = Model<IUserDocument>
 
-const UserSchema = new Schema<IUserDocument>({
-  name: { type: String, required: true },
-  nickname: { type: String, required: false },
-  description: String,
-  email: { type: String, required: true },
-  secondaryEmail: String,
-  password: { type: String, required: true },
-  avatar: {
-    title: String,
-    url: String,
-    alt: String,
+const UserSchema = new Schema<IUserDocument>(
+  {
+    name: { type: String, required: true },
+    nickname: { type: String, required: false },
+    description: String,
+    email: { type: String, required: true },
+    secondaryEmail: String,
+    password: { type: String, required: true },
+    avatar: {
+      title: String,
+      url: String,
+      alt: String,
+    },
+    role: {
+      type: String,
+      enum: UserRole,
+      default: UserRole.USER,
+    },
+    verificationToken: String,
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifiedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
-  role: {
-    type: String,
-    enum: UserRole,
-    default: UserRole.USER,
+  {
+    timestamps: true,
   },
-  verificationToken: String,
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  verifiedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-})
+)
 
 UserSchema.pre('save', async function () {
   if (!this.isModified('password')) return
@@ -77,4 +84,4 @@ UserSchema.method('isValidPassword', async function (password: string) {
 
 const User = model<IUserDocument, IUserModel>('User', UserSchema)
 
-export { User, IUser, IPrivateUserInfo, IPublicUserInfo }
+export { User, IUser, UserRole, IPrivateUserInfo, IPublicUserInfo, IUserDocument }

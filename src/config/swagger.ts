@@ -1,47 +1,12 @@
 import swaggerJSDoc, { Options, SwaggerDefinition } from 'swagger-jsdoc'
+import YAML from 'js-yaml'
 
-import { ApiInfo } from '@/constants/ApiInfo'
+import fs from 'fs'
+import path from 'path'
 
-const swaggerDefinition: SwaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: ApiInfo.NAME,
-    version: ApiInfo.VERSION,
-    license: {
-      name: 'Licensed Under MIT',
-      url: 'https://spdx.org/licenses/MIT.html',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server',
-      },
-    ],
-    components: {
-      securitySchemes: {
-        cookieAuth: {
-          type: 'jwt',
-          in: 'cookie',
-          name: 'accessToken',
-        },
-      },
-    },
-    tags: [
-      {
-        name: 'auth',
-        description: 'Everything about authentication',
-      },
-      {
-        name: 'story',
-        description: 'Everything about stories',
-      },
-      {
-        name: 'user',
-        description: 'Everything about users',
-      },
-    ],
-  },
-}
+const swaggerDefinition = YAML.load(
+  fs.readFileSync(path.resolve(__dirname, './swagger-definition.yaml'), 'utf8'),
+) as SwaggerDefinition
 
 const options: Options = {
   swaggerDefinition,

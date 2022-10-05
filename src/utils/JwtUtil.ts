@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken'
 import { CookieOptions, Response } from 'express'
 
+import { UserRole } from '@/models/User'
 import { TimeUtil } from '@/utils/TimeUtil'
 
 type TokenUser = {
   id: string
   email: string
-  role: string
+  role: UserRole
 }
 
 type JtwPayload = {

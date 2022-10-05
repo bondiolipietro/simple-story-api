@@ -4,9 +4,9 @@ import { ApiRoutes } from '@/constants/ApiRoutes'
 import { ApiVersions } from '@/constants/ApiVersions'
 import { logger } from '@/services/logger'
 
-import authRouter from './auth'
-import userRouter from './user'
-import storyRouter from './story'
+import authRouter from './authRoutes'
+import userRouter from './userRoutes'
+import storyRouter from './storyRoutes'
 
 const configureRoutes = (app: Express) => {
   logger.info('Configuring routes...')

@@ -1,5 +1,5 @@
 abstract class ApplicationError extends Error {
-  public readonly status = 'fail'
+  public readonly status = 'error'
   public statusCode: number
 
   constructor(statusCode: number, message?: string) {

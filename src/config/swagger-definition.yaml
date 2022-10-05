@@ -1,0 +1,149 @@
+---
+openapi: 3.0.0
+info:
+  title: 'Simple Story API'
+  version: '1.0.0'
+  license:
+    name: Licensed Under MIT
+    url: https://spdx.org/licenses/MIT.html
+  servers:
+    - url: http://localhost:3000
+      description: Development server
+  components:
+    securitySchemes:
+      cookieAuth:
+        type: jwt
+        in: cookie
+        name: accessToken
+    schemas:
+      MediaContent:
+        type: object
+        properties:
+          title:
+            type: string
+            example: title
+          url:
+            type: string
+            example: url
+          alt:
+            type: string
+            example: alt
+      UserCreate:
+        type: object
+        properties:
+          name:
+            type: string
+            example: name
+          nickname:
+            type: string
+            example: nickname
+          password:
+            type: string
+            example: password
+          description:
+            type: string
+            example: description
+          email:
+            type: string
+            example: email
+          secondaryEmail:
+            type: string
+            example: secondaryEmail
+          avatar:
+            $ref: '#/info/components/schemas/MediaContent'
+      UserUpdate:
+        type: object
+        properties:
+          name:
+            type: string
+            example: name
+          nickname:
+            type: string
+            example: nickname
+          description:
+            type: string
+            example: description
+          email:
+            type: string
+            example: email
+          secondaryEmail:
+            type: string
+            example: secondaryEmail
+          avatar:
+            $ref: '#/info/components/schemas/MediaContent'
+      StoryParagraph:
+        type: object
+        properties:
+          text:
+            type: string
+          audio:
+            $ref: '#/info/components/schemas/MediaContent'
+          images:
+            type: array
+            items:
+              $ref: '#/info/components/schemas/MediaContent'
+      StoryFrame:
+        type: object
+        properties:
+          title:
+            type: string
+          paragraphs:
+            type: array
+            items:
+              $ref: '#/info/components/schemas/StoryParagraph'
+          notes:
+            type: array
+            items:
+              type: object
+              properties:
+                text:
+                  type: string
+      StoryInfo:
+        type: object
+        properties:
+          title:
+            type: string
+          description:
+            type: description
+          image:
+            $ref: '#/info/components/schemas/MediaContent'
+          author:
+            type: string
+          isPrivate:
+            type: boolean
+      NewStory:
+        type: object
+        properties:
+          info:
+            $ref: '#/info/components/schemas/StoryInfo'
+          frames:
+            type: array
+            items:
+              $ref: '#/info/components/schemas/StoryFrame'
+      StoryAnalytics:
+        type: object
+        properties:
+          views:
+            type: number
+          likes:
+            type: number
+      StoryPreview:
+        type: object
+        properties:
+          _id:
+            type: string
+          info:
+            $ref: '#/info/components/schemas/StoryInfo'
+          analytics:
+            $ref: '#/info/components/schemas/StoryAnalytics'
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+  tags:
+    - name: auth
+      description: Everything about authentication
+    - name: story
+      description: Everything about stories
+    - name: user
+      description: Everything about users

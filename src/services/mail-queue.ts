@@ -12,7 +12,6 @@ class MailQueue {
   private _mailer: IMailer
 
   constructor(config: MailQueueConfig, mailer: IMailer, redisOptions: RedisOptions) {
-    console.log(redisOptions)
     this._config = config
     this._queue = new Bull(config.name, { redis: redisOptions })
     this.configureListeners()
