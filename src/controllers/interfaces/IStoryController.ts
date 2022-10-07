@@ -1,28 +1,3 @@
-import {
-  CreateStoryRequest,
-  CreateStoryResponse,
-  DeleteStoryRequest,
-  DeleteStoryResponse,
-  GetStoriesPreviewRequest,
-  GetStoriesPreviewResponse,
-  GetStoryByIdRequest,
-  GetStoryByIdResponse,
-  GetStoryPreviewByIdRequest,
-  GetStoryPreviewByIdResponse,
-  GetStoryUsingShareTokenRequest,
-  GetStoryUsingShareTokenResponse,
-  LikeStoryRequest,
-  LikeStoryResponse,
-  ShareStoryRequest,
-  ShareStoryResponse,
-  UnlikeStoryRequest,
-  UnlikeStoryResponse,
-  UpdateStoryRequest,
-  UpdateStoryResponse,
-  ViewStoryRequest,
-  ViewStoryResponse,
-} from '@/types'
-
 interface IStoryController {
   shareStory(req: ShareStoryRequest, res: ShareStoryResponse): Promise<void>
 

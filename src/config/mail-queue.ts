@@ -1,9 +1,6 @@
-export type MailQueueConfig = {
-  name: string
-  concurrency: number
-}
+import { BullQueueConfig } from '@/services/models/BullQueue'
 
-const mailQueueConfig: MailQueueConfig = {
+const mailQueueConfig: BullQueueConfig = {
   name: 'mail-queue',
   concurrency: 50,
 }

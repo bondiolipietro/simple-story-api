@@ -1,5 +1,5 @@
 class ApiVersions {
-  public static V1 = '/v1'
+  public static V1 = 'v1'
 }
 
 export { ApiVersions }

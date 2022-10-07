@@ -1,25 +1,17 @@
-import SES from 'aws-sdk/clients/ses'
+import { SES } from 'aws-sdk'
 
-export interface MailMessage {
-  from?: {
-    name: string
-    email: string
-  }
-  to: string
-  subject: string
-  body: string
-}
+import { logger } from '@/services/winston-logger'
 
-export interface IMailer {
-  sendEmail(message: MailMessage): Promise<void>
-}
+import { IMailer, MailMessage } from './models/IMailer'
 
-class Mailer {
+class AwsSesMailer implements IMailer {
   private client: SES
 
   constructor() {
     this.client = new SES({
-      region: process.env.AWS_REGION,
+      region: process.env.AWS_SES_REGION,
+      accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY,
     })
   }
 
@@ -47,10 +39,10 @@ class Mailer {
       })
       .promise()
 
-    console.log(res)
+    logger.info(`Email sent: ${res.MessageId}`)
   }
 }
 
-const mailer = new Mailer()
+const mailer = new AwsSesMailer()
 
 export { mailer }

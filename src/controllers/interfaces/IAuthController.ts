@@ -1,12 +1,3 @@
-import {
-  LoginRequest,
-  LoginResponse,
-  RecoverPasswordRequest,
-  RecoverPasswordResponse,
-  SendRecoverPasswordEmailRequest,
-  SendRecoverPasswordEmailResponse,
-} from '@/types'
-
 interface IAuthController {
   login(req: LoginRequest, res: LoginResponse): Promise<void>
 

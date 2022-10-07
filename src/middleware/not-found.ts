@@ -1,8 +1,7 @@
 import { Request } from 'express'
 
-import { DefaultResponse } from '@/types'
-import { logger } from '@/services/logger'
-import { ExpressUtil } from '@/utils/ExpressUtil'
+import { logger } from '@/services/winston-logger'
+import { ExpressUtil } from '@/utils/express-util'
 
 /**
  * @description - Middleware to handle cases where a route is not found

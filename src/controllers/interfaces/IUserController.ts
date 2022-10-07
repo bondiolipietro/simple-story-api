@@ -1,22 +1,3 @@
-import {
-  CreateUserRequest,
-  CreateUserResponse,
-  DeleteUserRequest,
-  DeleteUserResponse,
-  GetUserByIdRequest,
-  GetUserByIdResponse,
-  GetUserPreviewByIdRequest,
-  GetUserPreviewByIdResponse,
-  ResendVerificationEmailRequest,
-  ResendVerificationEmailResponse,
-  UpdateUserPasswordRequest,
-  UpdateUserPasswordResponse,
-  UpdateUserRequest,
-  UpdateUserResponse,
-  VerifyUserEmailRequest,
-  VerifyUserEmailResponse,
-} from '@/types'
-
 interface IUserController {
   createUser(req: CreateUserRequest, res: CreateUserResponse): Promise<void>
 

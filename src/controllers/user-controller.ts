@@ -1,7 +1,6 @@
 import crypto from 'crypto'
 
-import { User } from '@/models/User'
-import { mailer } from '@/services/mailer'
+import { User } from '@/models/entities/User'
 import {
   InvalidPasswordError,
   InvalidTokenError,
@@ -9,27 +8,9 @@ import {
   UserAlreadyExistsError,
   UserAlreadyVerifiedError,
   UserNotFoundError,
-} from '@/errors/index'
-import { ResponseUtil } from '@/utils/ResponseUtil'
-import {
-  CreateUserRequest,
-  CreateUserResponse,
-  DeleteUserRequest,
-  DeleteUserResponse,
-  GetUserByIdRequest,
-  GetUserByIdResponse,
-  GetUserPreviewByIdRequest,
-  GetUserPreviewByIdResponse,
-  ResendVerificationEmailRequest,
-  ResendVerificationEmailResponse,
-  UpdateUserPasswordRequest,
-  UpdateUserPasswordResponse,
-  UpdateUserRequest,
-  UpdateUserResponse,
-  VerifyUserEmailRequest,
-  VerifyUserEmailResponse,
-} from '@/types'
-import { mailQueue } from '@/services/mail-queue'
+} from '@/models/errors/index'
+import { mailQueue } from '@/services/aws-ses-mail-queue'
+import { ResponseUtil } from '@/utils/response-util'
 
 import { IUserController } from './interfaces/IUserController'
 
@@ -80,9 +61,7 @@ class UserController implements IUserController {
       throw new InvalidTokenError()
     }
 
-    user.isVerified = true
-    user.verificationToken = undefined
-    await user.save()
+    await user.updateOne({ isVerified: true, verificationToken: '' })
 
     ResponseUtil.Ok(res, 'User verified', { _id: user.id }).Send()
   }
@@ -101,9 +80,9 @@ class UserController implements IUserController {
     }
 
     const newVerificationToken = crypto.randomBytes(40).toString('hex')
-    await User.findOneAndUpdate({ email }, { verificationToken: newVerificationToken }, { new: true })
+    await user.updateOne({ verificationToken: newVerificationToken })
 
-    mailer.sendEmail({
+    await mailQueue.add({
       to: user.email,
       subject: 'Verify your email',
       body: `<a href="${process.env.APP_URL}/user/verify-email?token=${newVerificationToken}&email=${user.email}">Verify your email</a>`,
@@ -114,9 +93,6 @@ class UserController implements IUserController {
 
   public async getUserById(req: GetUserByIdRequest, res: GetUserByIdResponse) {
     const { id } = req.params
-
-    console.info(id)
-    console.info(req.user)
 
     if (req.user.id !== id) {
       throw new UnauthorizedError()
@@ -175,13 +151,7 @@ class UserController implements IUserController {
 
     const { name, nickname, description, secondaryEmail, avatar } = req.body
 
-    user.name = name
-    user.nickname = nickname
-    user.description = description
-    user.secondaryEmail = secondaryEmail
-    user.avatar = avatar
-
-    await user.save()
+    await user.updateOne({ name, nickname, description, secondaryEmail, avatar })
 
     ResponseUtil.Ok(res, 'User updated', { _id: user.id }).Send()
   }
@@ -207,11 +177,9 @@ class UserController implements IUserController {
       throw new InvalidPasswordError()
     }
 
-    user.password = newPassword
+    await user.updateOne({ password: newPassword })
 
-    await user.save()
-
-    mailer.sendEmail({
+    await mailQueue.add({
       to: user.email,
       subject: 'Password changed',
       body: 'Your password has been changed',

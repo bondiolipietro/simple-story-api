@@ -1,4 +1,4 @@
-import { TimeUtil } from '@/utils/TimeUtil'
+import { TimeUtil } from '@/utils/time-util'
 
 type RateLimitConfig = {
   windowMs: number

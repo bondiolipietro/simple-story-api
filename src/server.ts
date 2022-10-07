@@ -12,15 +12,16 @@ import mongoSanitize from 'express-mongo-sanitize'
 import '@/config/dotenv'
 import { rateLimitConfig } from '@/config/rate-limit'
 import { swaggerSpec } from '@/config/swagger'
-import { ApiRoutes } from '@/constants/ApiRoutes'
+import { ApiRoutes } from '@/constants/api-routes'
 import { connectMongoDB } from '@/database/connect'
-import { notFound } from '@/middleware/notFound'
-import { errorHandler } from '@/middleware/errorHandler'
-import { configureRoutes as v1Routes } from '@/routes/v1'
-import { logger, mailQueue } from '@/services/index'
+import { notFound } from '@/middleware/not-found'
+import { errorHandler } from '@/middleware/error-handler'
+import { configureRoutes } from '@/routes/routes'
+import { mailQueue } from '@/services/aws-ses-mail-queue'
+import { logger } from '@/services/winston-logger'
 
 // Create express app
-let app = express()
+const app = express()
 
 // Security middleware config
 app.use(
@@ -39,7 +40,7 @@ app.use(express.json())
 app.use(cookieParser(process.env.JWT_SECRET))
 
 // Configure routes
-app = v1Routes(app)
+configureRoutes(app)
 
 // Configure swagger
 app.use(ApiRoutes.SWAGGER, swaggerUi.serve, swaggerUi.setup(swaggerSpec))

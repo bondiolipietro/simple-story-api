@@ -2,41 +2,17 @@ import { addDays, isPast } from 'date-fns'
 
 import crypto from 'crypto'
 
-import { ImageSize, INewStory, IStory, IStoryDocument, IStoryFrame, IStoryPreview, Story } from '@/models/Story'
-import { ResponseUtil } from '@/utils/ResponseUtil'
+import { INewStory, IStory, IStoryDocument, IStoryFrame, IStoryPreview, Story } from '@/models/entities/Story'
+import { ResponseUtil } from '@/utils/response-util'
 import {
   StoryNotFoundError,
   InvalidTokenError,
   TokenExpiredError,
   ForbiddenError,
   NoResourceFoundError,
-} from '@/errors/index'
-import {
-  ShareStoryRequest,
-  ShareStoryResponse,
-  GetStoryUsingShareTokenRequest,
-  GetStoryUsingShareTokenResponse,
-  GetStoryByIdRequest,
-  GetStoryByIdResponse,
-  GetStoryPreviewByIdRequest,
-  GetStoryPreviewByIdResponse,
-  GetStoriesPreviewRequest,
-  GetStoriesPreviewResponse,
-  CreateStoryRequest,
-  CreateStoryResponse,
-  UpdateStoryRequest,
-  UpdateStoryResponse,
-  DeleteStoryRequest,
-  DeleteStoryResponse,
-  LikeStoryRequest,
-  LikeStoryResponse,
-  UnlikeStoryRequest,
-  UnlikeStoryResponse,
-  ViewStoryRequest,
-  ViewStoryResponse,
-} from '@/types'
-import { TokenUser } from '@/utils/JwtUtil'
-import { IUser, User, UserRole } from '@/models/User'
+} from '@/models/errors/index'
+import { TokenUser } from '@/utils/jwt-util'
+import { IUser, User, UserRole } from '@/models/entities/User'
 
 import { IStoryController } from './interfaces/IStoryController'
 
@@ -55,10 +31,7 @@ class StoryController implements IStoryController {
     const shareToken = crypto.randomBytes(40).toString('hex')
     const shareTokenExpires = addDays(Date.now(), 7)
 
-    story.shareToken = shareToken
-    story.shareTokenExpires = shareTokenExpires
-
-    await story.save()
+    await story.updateOne({ shareToken, shareTokenExpires })
 
     ResponseUtil.Ok(res, 'Story shared successfully', {
       storyId: story._id,
@@ -259,21 +232,12 @@ class StoryController implements IStoryController {
     const newFrames: Array<IStoryFrame> = frames.map((frame) => {
       const newParagraphs = frame.paragraphs.map((paragraph) => {
         const newImages = paragraph.images.map((image) => {
-          return {
-            title: image.title,
-            url: image.url,
-            alt: image.alt,
-            size: image.size,
-          }
+          return image._id
         })
 
         return {
           text: paragraph.text,
-          audio: {
-            title: paragraph.audio.title,
-            url: paragraph.audio.url,
-            alt: paragraph.audio.alt,
-          },
+          audio: paragraph.audio._id,
           images: newImages,
         }
       })
@@ -294,11 +258,7 @@ class StoryController implements IStoryController {
       info: {
         title: info.title,
         description: info.description,
-        image: {
-          title: info.image.title,
-          url: info.image.url,
-          alt: info.image.alt,
-        },
+        image: info.image._id,
         author: user._id,
         isPrivate: info.isPrivate,
       },

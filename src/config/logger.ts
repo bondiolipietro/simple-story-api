@@ -3,7 +3,7 @@ import TransportStream from 'winston-transport'
 import { SeqTransport } from '@datalust/winston-seq'
 
 import { mongoConfig } from '@/config/mongo'
-import { ApiInfo } from '@/constants/ApiInfo'
+import { ApiInfo } from '@/constants/api-info'
 
 import 'winston-mongodb'
 

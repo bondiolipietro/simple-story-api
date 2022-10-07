@@ -1,20 +1,8 @@
 import { Schema, model, Types, Model, PopulatedDoc } from 'mongoose'
 
-import { IUserDocument } from '@/models/User'
-import { StoryUserAction } from '@/models/StoryUserAction'
-import { MediaContent } from '@/types'
-
-enum ImageSize {
-  SMALL = 'small',
-  MEDIUM = 'medium',
-  LARGE = 'large',
-}
-
-type IStoryAudio = MediaContent
-
-type IStoryImage = MediaContent & {
-  size: ImageSize
-}
+import { IFileDocument } from '@/models/entities/File'
+import { IUserDocument } from '@/models/entities/User'
+import { StoryUserAction } from '@/models/entities/StoryUserAction'
 
 type INote = {
   text: string
@@ -22,8 +10,8 @@ type INote = {
 
 type IStoryFrameParagraph = {
   text: string
-  audio?: IStoryAudio
-  images: Array<IStoryImage>
+  audio?: PopulatedDoc<IFileDocument>
+  images: Array<PopulatedDoc<IFileDocument>>
 }
 
 type IStoryFrame = {
@@ -35,7 +23,7 @@ type IStoryFrame = {
 type IStoryInfo = {
   title: string
   description: string
-  image: MediaContent
+  image: PopulatedDoc<IFileDocument>
   author: PopulatedDoc<IUserDocument>
   isPrivate: boolean
 }
@@ -69,57 +57,40 @@ type IStoryDocument = Document & IStory
 
 type IStoryModel = Model<IStoryDocument>
 
-const AudioSchema = new Schema<IStoryAudio>({
-  title: { type: String, required: true },
-  url: { type: String, required: true },
-  alt: String,
-})
-
-const ImageSchema = new Schema<IStoryImage>({
-  title: { type: String, required: true },
-  url: { type: String, required: true },
-  alt: String,
-  size: {
-    type: String,
-    enum: ImageSize,
-    default: ImageSize.MEDIUM,
-  },
-})
-
-const ParagraphSchema = new Schema<IStoryFrameParagraph>({
+const StoryParagraphSchema = new Schema<IStoryFrameParagraph>({
   text: { type: String, required: true },
-  audio: AudioSchema,
-  images: { type: [ImageSchema], required: true },
+  audio: { type: Types.ObjectId, ref: 'File' },
+  images: [{ type: Types.ObjectId, ref: 'File' }],
 })
 
-const NoteSchema = new Schema<INote>({
+const StoryNoteSchema = new Schema<INote>({
   text: { type: String, required: false },
 })
 
-const FrameSchema = new Schema<IStoryFrame>({
+const StoryFrameSchema = new Schema<IStoryFrame>({
   title: { type: String, required: true },
-  paragraphs: { type: [ParagraphSchema], required: true },
-  notes: { type: [NoteSchema], default: [] },
+  paragraphs: { type: [StoryParagraphSchema], required: true },
+  notes: { type: [StoryNoteSchema], default: [] },
 })
 
-const InfoSchema = new Schema<IStoryInfo>({
+const StoryInfoSchema = new Schema<IStoryInfo>({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  image: { type: ImageSchema, required: true },
+  image: { type: Types.ObjectId, ref: 'File' },
   author: { type: Types.ObjectId, required: true },
   isPrivate: { type: Boolean, default: false },
 })
 
-const AnalyticsSchema = new Schema<IStoryAnalytics>({
+const StoryAnalyticsSchema = new Schema<IStoryAnalytics>({
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
 })
 
 const StorySchema = new Schema<IStory>(
   {
-    frames: { type: [FrameSchema], required: true },
-    info: { type: InfoSchema, required: true },
-    analytics: { type: AnalyticsSchema, required: true },
+    frames: { type: [StoryFrameSchema], required: true },
+    info: { type: StoryInfoSchema, required: true },
+    analytics: { type: StoryAnalyticsSchema, required: true },
     shareToken: { type: String, required: false },
     shareTokenExpires: { type: Date, required: false },
   },
@@ -170,4 +141,4 @@ StorySchema.method('viewStory', async function (userId: string) {
 
 const Story = model<IStoryDocument, IStoryModel>('Story', StorySchema)
 
-export { Story, IStory, IStoryFrame, ImageSize, IStoryDocument, IStoryModel, IStoryObj, INewStory, IStoryPreview }
+export { Story, IStory, IStoryFrame, IStoryDocument, IStoryModel, IStoryObj, INewStory, IStoryPreview }

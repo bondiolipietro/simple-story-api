@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { storyController } from '@/controllers/storyController'
+import { storyController } from '@/controllers/story-controller'
 import { ensureUserIsAuthenticated, getUserCredentials } from '@/middleware/authentication'
 
 const router = express.Router()
@@ -269,4 +269,4 @@ router.post('/:id/dislike', ensureUserIsAuthenticated, storyController.dislikeSt
  */
 router.post('/:id/view', ensureUserIsAuthenticated, storyController.viewStory)
 
-export default router
+export { router as storyRouter }

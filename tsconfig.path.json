@@ -14,9 +14,6 @@
       "@/database/*": [
         "./src/database/*"
       ],
-      "@/errors/*": [
-        "./src/errors/*"
-      ],
       "@/middleware/*": [
         "./src/middleware/*"
       ],
@@ -32,9 +29,6 @@
       "@/utils/*": [
         "./src/utils/*"
       ],
-      "@/types": [
-        "./src/@types/index.ts"
-      ]
     }
   }
 }

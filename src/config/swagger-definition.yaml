@@ -1,14 +1,23 @@
 ---
 openapi: 3.0.0
 info:
-  title: 'Simple Story API'
-  version: '1.0.0'
+  title: "Simple Story API"
+  version: "1.0.0"
   license:
     name: Licensed Under MIT
     url: https://spdx.org/licenses/MIT.html
   servers:
     - url: http://localhost:3000
       description: Development server
+  tags:
+    - name: auth
+      description: Everything about authentication
+    - name: file
+      description: Everything about files
+    - name: story
+      description: Everything about stories
+    - name: user
+      description: Everything about users
   components:
     securitySchemes:
       cookieAuth:
@@ -50,7 +59,7 @@ info:
             type: string
             example: secondaryEmail
           avatar:
-            $ref: '#/info/components/schemas/MediaContent'
+            $ref: "#/info/components/schemas/MediaContent"
       UserUpdate:
         type: object
         properties:
@@ -70,18 +79,18 @@ info:
             type: string
             example: secondaryEmail
           avatar:
-            $ref: '#/info/components/schemas/MediaContent'
+            $ref: "#/info/components/schemas/MediaContent"
       StoryParagraph:
         type: object
         properties:
           text:
             type: string
           audio:
-            $ref: '#/info/components/schemas/MediaContent'
+            $ref: "#/info/components/schemas/MediaContent"
           images:
             type: array
             items:
-              $ref: '#/info/components/schemas/MediaContent'
+              $ref: "#/info/components/schemas/MediaContent"
       StoryFrame:
         type: object
         properties:
@@ -90,7 +99,7 @@ info:
           paragraphs:
             type: array
             items:
-              $ref: '#/info/components/schemas/StoryParagraph'
+              $ref: "#/info/components/schemas/StoryParagraph"
           notes:
             type: array
             items:
@@ -106,7 +115,7 @@ info:
           description:
             type: description
           image:
-            $ref: '#/info/components/schemas/MediaContent'
+            $ref: "#/info/components/schemas/MediaContent"
           author:
             type: string
           isPrivate:
@@ -115,11 +124,11 @@ info:
         type: object
         properties:
           info:
-            $ref: '#/info/components/schemas/StoryInfo'
+            $ref: "#/info/components/schemas/StoryInfo"
           frames:
             type: array
             items:
-              $ref: '#/info/components/schemas/StoryFrame'
+              $ref: "#/info/components/schemas/StoryFrame"
       StoryAnalytics:
         type: object
         properties:
@@ -133,17 +142,10 @@ info:
           _id:
             type: string
           info:
-            $ref: '#/info/components/schemas/StoryInfo'
+            $ref: "#/info/components/schemas/StoryInfo"
           analytics:
-            $ref: '#/info/components/schemas/StoryAnalytics'
+            $ref: "#/info/components/schemas/StoryAnalytics"
           createdAt:
             type: string
           updatedAt:
             type: string
-  tags:
-    - name: auth
-      description: Everything about authentication
-    - name: story
-      description: Everything about stories
-    - name: user
-      description: Everything about users

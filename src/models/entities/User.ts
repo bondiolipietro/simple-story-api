@@ -1,7 +1,7 @@
-import { Schema, model, Types, Model } from 'mongoose'
+import { Schema, model, Types, Model, PopulatedDoc } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-import { MediaContent } from 'src/@types'
+import { IFileDocument } from '@/models/entities/File'
 
 enum UserRole {
   ADMIN = 'admin',
@@ -16,7 +16,7 @@ type IUser = {
   email: string
   secondaryEmail?: string
   password: string
-  avatar: MediaContent
+  avatar: PopulatedDoc<IFileDocument>
   role: UserRole
   verificationToken?: string
   isVerified: boolean
@@ -47,11 +47,7 @@ const UserSchema = new Schema<IUserDocument>(
     email: { type: String, required: true },
     secondaryEmail: String,
     password: { type: String, required: true },
-    avatar: {
-      title: String,
-      url: String,
-      alt: String,
-    },
+    avatar: { type: Types.ObjectId, ref: 'File' },
     role: {
       type: String,
       enum: UserRole,

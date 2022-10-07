@@ -1,7 +1,7 @@
 import { Schema, model, Types, Model, PopulatedDoc } from 'mongoose'
 
-import { IStoryDocument } from '@/models/Story'
-import { IUserDocument } from '@/models/User'
+import { IStoryDocument } from '@/models/entities/Story'
+import { IUserDocument } from '@/models/entities/User'
 
 enum StoryUserActionType {
   VIEW = 'view',
@@ -10,8 +10,8 @@ enum StoryUserActionType {
 
 type IStoryUserAction = {
   _id: Types.ObjectId
-  storyId: PopulatedDoc<IStoryDocument>
-  userId: PopulatedDoc<IUserDocument>
+  story: PopulatedDoc<IStoryDocument>
+  user: PopulatedDoc<IUserDocument>
   type: StoryUserActionType
   createdAt: Date
   updatedAt: Date
@@ -23,8 +23,8 @@ type IStoryUserActionModel = Model<IStoryUserActionDocument>
 
 const StoryUserActionSchema = new Schema<IStoryUserAction>(
   {
-    storyId: { type: Types.ObjectId, ref: 'Story' },
-    userId: { type: Types.ObjectId, required: true, ref: 'User' },
+    story: { type: Types.ObjectId, ref: 'Story'.toString(), required: true },
+    user: { type: Types.ObjectId, ref: 'User', required: true },
     type: {
       type: String,
       enum: StoryUserActionType,

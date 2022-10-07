@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
 
-import { DefaultResponse } from '@/types'
-
 class ResponseUtil {
   static Ok(res: DefaultResponse, message: string, data?: unknown) {
     const Send = () =>

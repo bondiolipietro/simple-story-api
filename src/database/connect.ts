@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 import { mongoConfig } from '@/config/mongo'
-import { logger } from '@/services/logger'
+import { logger } from '@/services/winston-logger'
 
 const mongoUserPass = mongoConfig.username ? `${mongoConfig.username}:${mongoConfig.password}@` : ''
 

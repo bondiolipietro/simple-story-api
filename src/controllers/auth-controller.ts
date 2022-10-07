@@ -2,24 +2,16 @@ import { addMinutes, isPast } from 'date-fns'
 
 import crypto from 'crypto'
 
-import { User } from '@/models/User'
-import { mailer } from '@/services/mailer'
+import { User } from '@/models/entities/User'
 import { JwtUtil, ResponseUtil } from '@/utils/index'
+import { mailQueue } from '@/services/aws-ses-mail-queue'
 import {
   InvalidCredentialsError,
   InvalidFieldsError,
   InvalidTokenError,
   TokenExpiredError,
   UserNotFoundError,
-} from '@/errors/index'
-import {
-  LoginRequest,
-  LoginResponse,
-  RecoverPasswordRequest,
-  RecoverPasswordResponse,
-  SendRecoverPasswordEmailRequest,
-  SendRecoverPasswordEmailResponse,
-} from '@/types'
+} from '@/models/errors/index'
 
 import { IAuthController } from './interfaces/IAuthController'
 
@@ -32,6 +24,7 @@ class AuthController implements IAuthController {
 
     const user = await User.findOne({ email })
     if (!user) {
+      console.log('b')
       throw new InvalidCredentialsError()
     }
 
@@ -60,7 +53,7 @@ class AuthController implements IAuthController {
 
     await User.findOneAndUpdate({ email }, { passwordResetToken, passwordResetExpires })
 
-    mailer.sendEmail({
+    await mailQueue.add({
       to: user.email,
       subject: 'Reset your password',
       body: `<a href="${process.env.APP_URL}/auth/reset-password?token=${passwordResetToken}&email=${user.email}">Reset your password</a>`,
@@ -86,10 +79,7 @@ class AuthController implements IAuthController {
       throw new TokenExpiredError()
     }
 
-    user.password = password
-    user.passwordResetToken = undefined
-    user.passwordResetExpires = undefined
-    await user.save()
+    await user.updateOne({ password, passwordResetToken: undefined, passwordResetExpires: undefined })
 
     ResponseUtil.Ok(res, 'Password reset successful').Send()
   }

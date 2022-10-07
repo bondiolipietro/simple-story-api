@@ -1,11 +1,10 @@
 import { NextFunction } from 'express'
 
-import { JwtUtil } from '@/utils/JwtUtil'
-import { User } from '@/models/User'
-import { DefaultAuthRequest, DefaultResponse } from '@/types'
-import { InvalidCredentialsError, UnauthorizedError, UserNotVerifiedError } from '@/errors/index'
-import { logger } from '@/services/logger'
-import { ExpressUtil } from '@/utils/ExpressUtil'
+import { User } from '@/models/entities/User'
+import { InvalidCredentialsError, UnauthorizedError, UserNotVerifiedError } from '@/models/errors/index'
+import { logger } from '@/services/winston-logger'
+import { JwtUtil } from '@/utils/jwt-util'
+import { ExpressUtil } from '@/utils/express-util'
 
 /**
  * @description - Middleware that only gets information about the authenticated user
@@ -40,28 +39,24 @@ const getUserCredentials = async (req: DefaultAuthRequest, res: DefaultResponse,
  * @throws {UserNotVerifiedError} - If the user is not verified
  */
 const ensureUserIsAuthenticated = async (req: DefaultAuthRequest, _res: DefaultResponse, next: NextFunction) => {
-  try {
-    const { accessToken } = req.signedCookies
+  const { accessToken } = req.signedCookies
 
-    if (accessToken) {
-      const jwtPayload = JwtUtil.isTokenValid(accessToken)
-      const user = await User.findById(jwtPayload.user.id)
+  if (accessToken) {
+    const jwtPayload = JwtUtil.isTokenValid(accessToken)
+    const user = await User.findById(jwtPayload.user.id)
 
-      if (!user) {
-        throw new UnauthorizedError()
-      }
-      if (!user.isVerified) {
-        throw new UserNotVerifiedError()
-      }
-
-      req.user = jwtPayload.user
-      return next()
+    if (!user) {
+      throw new UnauthorizedError()
+    }
+    if (!user.isVerified) {
+      throw new UserNotVerifiedError()
     }
 
-    throw new InvalidCredentialsError()
-  } catch (error) {
-    throw new InvalidCredentialsError()
+    req.user = jwtPayload.user
+    return next()
   }
+
+  throw new InvalidCredentialsError()
 }
 
 export { getUserCredentials, ensureUserIsAuthenticated }

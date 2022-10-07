@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { userController } from '@/controllers/userController'
+import { userController } from '@/controllers/user-controller'
 import { ensureUserIsAuthenticated } from '@/middleware/authentication'
 
 const router = express.Router()
@@ -211,4 +211,4 @@ router.put('/:id/password', ensureUserIsAuthenticated, userController.updateUser
  */
 router.delete('/:id', ensureUserIsAuthenticated, userController.deleteUser)
 
-export default router
+export { router as userRouter }

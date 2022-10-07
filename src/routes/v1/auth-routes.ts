@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { authControlller } from '@/controllers/authController'
+import { authControlller } from '@/controllers/auth-controller'
 
 const router = express.Router()
 
@@ -90,4 +90,4 @@ router.post('/recover-password/send-email', authControlller.sendRecoverPasswordE
  */
 router.post('/recover-password', authControlller.recoverPassword)
 
-export default router
+export { router as authRouter }
