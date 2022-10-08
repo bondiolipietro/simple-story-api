@@ -11,7 +11,7 @@ interface IStoryController {
 
   createStory(req: CreateStoryRequest, res: CreateStoryResponse): Promise<void>
 
-  updateStoryById(req: UpdateStoryRequest, res: UpdateStoryResponse): Promise<void>
+  updateStory(req: UpdateStoryRequest, res: UpdateStoryResponse): Promise<void>
 
   deleteStoryById(req: DeleteStoryRequest, res: DeleteStoryResponse): Promise<void>
 

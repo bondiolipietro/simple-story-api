@@ -14,8 +14,8 @@
       "@/database/*": [
         "./src/database/*"
       ],
-      "@/middleware/*": [
-        "./src/middleware/*"
+      "@/middlewares/*": [
+        "./src/middlewares/*"
       ],
       "@/models/*": [
         "./src/models/*"
@@ -28,6 +28,9 @@
       ],
       "@/utils/*": [
         "./src/utils/*"
+      ],
+      "@/validators/*": [
+        "./src/validators/*"
       ],
     }
   }

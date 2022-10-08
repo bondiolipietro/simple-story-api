@@ -1,7 +1,18 @@
 import express from 'express'
 
 import { userController } from '@/controllers/user-controller'
-import { ensureUserIsAuthenticated } from '@/middleware/authentication'
+import { validator } from '@/middlewares/validator'
+import { ensureUserIsAuthenticated } from '@/middlewares/authentication'
+import {
+  createUserReqSchema,
+  deleteUserReqSchema,
+  getUserByIdReqSchema,
+  getUserPreviewByIdReqSchema,
+  resendVerificationEmailReqSchema,
+  updateUserPasswordReqSchema,
+  updateUserReqSchema,
+  verifyUserEmailReqSchema,
+} from '@/validators/user-validators'
 
 const router = express.Router()
 
@@ -25,7 +36,7 @@ const router = express.Router()
  *      400:
  *        description: User already exists
  */
-router.post('/register', userController.createUser)
+router.post('/register', validator(createUserReqSchema), userController.createUser)
 
 /**
  * @swagger
@@ -52,7 +63,7 @@ router.post('/register', userController.createUser)
  *      400:
  *        description: User does not exist / Invalid token / User already verified
  */
-router.post('/verify-email', userController.verifyUserEmail)
+router.post('/verify-email', validator(verifyUserEmailReqSchema), userController.verifyUserEmail)
 
 /**
  * @swagger
@@ -77,7 +88,11 @@ router.post('/verify-email', userController.verifyUserEmail)
  *      400:
  *        description: User does not exist / User already verified
  */
-router.post('/resend-verification-email', userController.resendVerificationEmail)
+router.post(
+  '/resend-verification-email',
+  validator(resendVerificationEmailReqSchema),
+  userController.resendVerificationEmail,
+)
 
 /**
  * @swagger
@@ -100,7 +115,7 @@ router.post('/resend-verification-email', userController.resendVerificationEmail
  *      200:
  *        description: Returns user's information
  */
-router.get('/:id', ensureUserIsAuthenticated, userController.getUserById)
+router.get('/:id', ensureUserIsAuthenticated, validator(getUserByIdReqSchema), userController.getUserById)
 
 /**
  * @swagger
@@ -121,7 +136,7 @@ router.get('/:id', ensureUserIsAuthenticated, userController.getUserById)
  *      200:
  *        description: Returns user's information preview
  */
-router.get('/:id/preview', userController.getUserPreviewById)
+router.get('/:id/preview', validator(getUserPreviewByIdReqSchema), userController.getUserPreviewById)
 
 /**
  * @swagger
@@ -150,7 +165,7 @@ router.get('/:id/preview', userController.getUserPreviewById)
  *      200:
  *        description: Returns the id of the updated user
  */
-router.put('/:id', ensureUserIsAuthenticated, userController.updateUser)
+router.put('/:id', ensureUserIsAuthenticated, validator(updateUserReqSchema), userController.updateUser)
 
 /**
  * @swagger
@@ -186,7 +201,12 @@ router.put('/:id', ensureUserIsAuthenticated, userController.updateUser)
  *      200:
  *        description: Returns a success message
  */
-router.put('/:id/password', ensureUserIsAuthenticated, userController.updateUserPassword)
+router.put(
+  '/:id/password',
+  ensureUserIsAuthenticated,
+  validator(updateUserPasswordReqSchema),
+  userController.updateUserPassword,
+)
 
 /**
  * @swagger
@@ -209,6 +229,6 @@ router.put('/:id/password', ensureUserIsAuthenticated, userController.updateUser
  *      200:
  *        description: Returns the id of the deleted user
  */
-router.delete('/:id', ensureUserIsAuthenticated, userController.deleteUser)
+router.delete('/:id', ensureUserIsAuthenticated, validator(deleteUserReqSchema), userController.deleteUser)
 
 export { router as userRouter }

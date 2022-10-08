@@ -59,7 +59,8 @@ info:
             type: string
             example: secondaryEmail
           avatar:
-            $ref: "#/info/components/schemas/MediaContent"
+            type: string
+            example: image_id
       UserUpdate:
         type: object
         properties:
@@ -79,18 +80,21 @@ info:
             type: string
             example: secondaryEmail
           avatar:
-            $ref: "#/info/components/schemas/MediaContent"
+            type: string
+            example: image_id
       StoryParagraph:
         type: object
         properties:
           text:
             type: string
           audio:
-            $ref: "#/info/components/schemas/MediaContent"
+            type: string
+            example: image_id
           images:
             type: array
             items:
-              $ref: "#/info/components/schemas/MediaContent"
+              type: string
+              example: image_id
       StoryFrame:
         type: object
         properties:
@@ -115,9 +119,11 @@ info:
           description:
             type: description
           image:
-            $ref: "#/info/components/schemas/MediaContent"
+            type: string
+            example: image_id
           author:
             type: string
+            example: author_id
           isPrivate:
             type: boolean
       NewStory:

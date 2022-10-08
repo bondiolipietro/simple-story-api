@@ -3,7 +3,9 @@ import multer from 'multer'
 
 import { multerConfig } from '@/config/multer'
 import { fileController } from '@/controllers/file-controller'
-import { ensureUserIsAuthenticated } from '@/middleware/authentication'
+import { ensureUserIsAuthenticated } from '@/middlewares/authentication'
+import { validator } from '@/middlewares/validator'
+import { uploadFileReqSchema } from '@/validators/file-validators'
 
 const router = express.Router()
 
@@ -30,6 +32,12 @@ const router = express.Router()
  *      200:
  *        description: Returns a success message
  */
-router.post('/upload', ensureUserIsAuthenticated, multer(multerConfig).single('file'), fileController.uploadFile)
+router.post(
+  '/upload',
+  ensureUserIsAuthenticated,
+  validator(uploadFileReqSchema),
+  multer(multerConfig).single('file'),
+  fileController.uploadFile,
+)
 
 export { router as fileRouter }

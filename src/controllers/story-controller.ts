@@ -132,7 +132,7 @@ class StoryController implements IStoryController {
     ResponseUtil.Created(res, 'Story created successfully', story).Send()
   }
 
-  public async updateStoryById(req: UpdateStoryRequest, res: UpdateStoryResponse): Promise<void> {
+  public async updateStory(req: UpdateStoryRequest, res: UpdateStoryResponse): Promise<void> {
     const { id } = req.params
 
     const story = await Story.findById(id)

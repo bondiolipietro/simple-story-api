@@ -1,7 +1,21 @@
 import express from 'express'
 
 import { storyController } from '@/controllers/story-controller'
-import { ensureUserIsAuthenticated, getUserCredentials } from '@/middleware/authentication'
+import { ensureUserIsAuthenticated, getUserCredentials } from '@/middlewares/authentication'
+import { validator } from '@/middlewares/validator'
+import {
+  createStoryReqSchema,
+  deleteStoryByIdReqSchema,
+  dislikeStoryReqSchema,
+  getStoriesPreviewsReqSchema,
+  getStoryByIdReqSchema,
+  getStoryPreviewByIdReqSchema,
+  getStoryUsingShareTokenReqSchema,
+  likeStoryReqSchema,
+  shareStoryReqSchema,
+  updateStoryReqSchema,
+  viewStoryReqSchema,
+} from '@/validators/story-validator'
 
 const router = express.Router()
 
@@ -21,9 +35,9 @@ const router = express.Router()
  *        required: true
  *        description: Id of the story to be shared
  *        schema:
- *          type: integer
+ *          type: string
  */
-router.post('/share', ensureUserIsAuthenticated, storyController.shareStory)
+router.post('/share', ensureUserIsAuthenticated, validator(shareStoryReqSchema), storyController.shareStory)
 
 /**
  * @swagger
@@ -43,7 +57,12 @@ router.post('/share', ensureUserIsAuthenticated, storyController.shareStory)
  *        schema:
  *          type: string
  */
-router.get('/shared', getUserCredentials, storyController.getStoryUsingShareToken)
+router.get(
+  '/shared',
+  getUserCredentials,
+  validator(getStoryUsingShareTokenReqSchema),
+  storyController.getStoryUsingShareToken,
+)
 
 /**
  * @swagger
@@ -66,7 +85,7 @@ router.get('/shared', getUserCredentials, storyController.getStoryUsingShareToke
  *      200:
  *        description: Returns a story
  */
-router.get('/:id', getUserCredentials, storyController.getStoryById)
+router.get('/:id', getUserCredentials, validator(getStoryByIdReqSchema), storyController.getStoryById)
 
 /**
  * @swagger
@@ -89,7 +108,12 @@ router.get('/:id', getUserCredentials, storyController.getStoryById)
  *      200:
  *        description: Returns story's preview
  */
-router.get('/:id/preview', getUserCredentials, storyController.getStoryPreviewById)
+router.get(
+  '/:id/preview',
+  getUserCredentials,
+  validator(getStoryPreviewByIdReqSchema),
+  storyController.getStoryPreviewById,
+)
 
 /**
  * @swagger
@@ -124,7 +148,12 @@ router.get('/:id/preview', getUserCredentials, storyController.getStoryPreviewBy
  *      200:
  *        description: Returns a list of public stories previews
  */
-router.get('/public/preview', getUserCredentials, storyController.getStoriesPreviews)
+router.get(
+  '/public/preview',
+  getUserCredentials,
+  validator(getStoriesPreviewsReqSchema),
+  storyController.getStoriesPreviews,
+)
 
 /**
  * @swagger
@@ -146,7 +175,7 @@ router.get('/public/preview', getUserCredentials, storyController.getStoriesPrev
  *      200:
  *        description: Returns the id of the created story
  */
-router.post('/', ensureUserIsAuthenticated, storyController.createStory)
+router.post('/', ensureUserIsAuthenticated, validator(createStoryReqSchema), storyController.createStory)
 
 /**
  * @swagger
@@ -175,7 +204,7 @@ router.post('/', ensureUserIsAuthenticated, storyController.createStory)
  *      200:
  *        description: Returns the id of the updated story
  */
-router.put('/:id', ensureUserIsAuthenticated, storyController.updateStoryById)
+router.put('/:id', ensureUserIsAuthenticated, validator(updateStoryReqSchema), storyController.updateStory)
 
 /**
  * @swagger
@@ -198,7 +227,7 @@ router.put('/:id', ensureUserIsAuthenticated, storyController.updateStoryById)
  *      200:
  *        description: Returns the id of the deleted story
  */
-router.delete('/:id', ensureUserIsAuthenticated, storyController.deleteStoryById)
+router.delete('/:id', ensureUserIsAuthenticated, validator(deleteStoryByIdReqSchema), storyController.deleteStoryById)
 
 /**
  * @swagger
@@ -221,7 +250,7 @@ router.delete('/:id', ensureUserIsAuthenticated, storyController.deleteStoryById
  *      200:
  *        description: Returns a success message
  */
-router.post('/:id/like', ensureUserIsAuthenticated, storyController.likeStory)
+router.post('/:id/like', ensureUserIsAuthenticated, validator(likeStoryReqSchema), storyController.likeStory)
 
 /**
  * @swagger
@@ -244,7 +273,7 @@ router.post('/:id/like', ensureUserIsAuthenticated, storyController.likeStory)
  *      200:
  *        description: Returns a success message
  */
-router.post('/:id/dislike', ensureUserIsAuthenticated, storyController.dislikeStory)
+router.post('/:id/dislike', ensureUserIsAuthenticated, validator(dislikeStoryReqSchema), storyController.dislikeStory)
 
 /**
  * @swagger
@@ -267,6 +296,6 @@ router.post('/:id/dislike', ensureUserIsAuthenticated, storyController.dislikeSt
  *      200:
  *        description: Returns a success message
  */
-router.post('/:id/view', ensureUserIsAuthenticated, storyController.viewStory)
+router.post('/:id/view', ensureUserIsAuthenticated, validator(viewStoryReqSchema), storyController.viewStory)
 
 export { router as storyRouter }

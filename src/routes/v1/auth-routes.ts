@@ -1,6 +1,12 @@
 import express from 'express'
 
 import { authControlller } from '@/controllers/auth-controller'
+import { validator } from '@/middlewares/validator'
+import {
+  loginReqSchema,
+  recoverPasswordReqSchema,
+  sendRecoverPasswordEmailReqSchema,
+} from '@/validators/auth-validators'
 
 const router = express.Router()
 
@@ -34,7 +40,7 @@ const router = express.Router()
  *              type: string
  *              example: accessToken=abcde12345; Path=/; HttpOnly
  */
-router.post('/login', authControlller.login)
+router.post('/login', validator(loginReqSchema), authControlller.login)
 
 /**
  * @swagger
@@ -58,7 +64,11 @@ router.post('/login', authControlller.login)
  *      200:
  *        description: Returns a success message regardless of whether the email exists or not
  */
-router.post('/recover-password/send-email', authControlller.sendRecoverPasswordEmail)
+router.post(
+  '/recover-password/send-email',
+  validator(sendRecoverPasswordEmailReqSchema),
+  authControlller.sendRecoverPasswordEmail,
+)
 
 /**
  * @swagger
@@ -88,6 +98,6 @@ router.post('/recover-password/send-email', authControlller.sendRecoverPasswordE
  *      200:
  *        description: Returns a success message
  */
-router.post('/recover-password', authControlller.recoverPassword)
+router.post('/recover-password', validator(recoverPasswordReqSchema), authControlller.recoverPassword)
 
 export { router as authRouter }
