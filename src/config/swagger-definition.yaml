@@ -7,7 +7,7 @@ info:
     name: Licensed Under MIT
     url: https://spdx.org/licenses/MIT.html
   servers:
-    - url: http://localhost:3000
+    - url: http://localhost:3002
       description: Development server
   tags:
     - name: auth
@@ -46,21 +46,15 @@ info:
           nickname:
             type: string
             example: nickname
-          password:
-            type: string
-            example: password
           description:
             type: string
             example: description
           email:
             type: string
-            example: email
-          secondaryEmail:
+            example: pietro@gmail.com
+          password:
             type: string
-            example: secondaryEmail
-          avatar:
-            type: string
-            example: image_id
+            example: password
       UserUpdate:
         type: object
         properties:
@@ -75,10 +69,10 @@ info:
             example: description
           email:
             type: string
-            example: email
+            example: pietro@gmail.com
           secondaryEmail:
             type: string
-            example: secondaryEmail
+            example: pietro2@gmail.com
           avatar:
             type: string
             example: image_id

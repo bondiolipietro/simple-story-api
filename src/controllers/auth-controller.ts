@@ -24,7 +24,6 @@ class AuthController implements IAuthController {
 
     const user = await User.findOne({ email })
     if (!user) {
-      console.log('b')
       throw new InvalidCredentialsError()
     }
 

@@ -9,7 +9,7 @@ import { ExpressUtil } from '@/utils/express-util'
  * @param {DefaultResponse} res - Express response object with custom types
  */
 const notFound = (req: Request, res: DefaultResponse) => {
-  logger.error('User trying to access unexistent route {Route}', ExpressUtil.getPathFromRequest(req))
+  logger.error(`User trying to access unexistent route ${ExpressUtil.getPathFromRequest(req)}`)
 
   res.status(404).send({
     status: 'error',

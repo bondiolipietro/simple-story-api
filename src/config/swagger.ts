@@ -1,5 +1,5 @@
-import swaggerJSDoc, { Options, SwaggerDefinition } from 'swagger-jsdoc'
 import YAML from 'js-yaml'
+import swaggerJSDoc, { Options, SwaggerDefinition } from 'swagger-jsdoc'
 
 import fs from 'fs'
 import path from 'path'

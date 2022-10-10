@@ -2,11 +2,11 @@ import express from 'express'
 import 'express-async-errors'
 import swaggerUi from 'swagger-ui-express'
 import cookieParser from 'cookie-parser'
-// Util middleware
 import cors from 'cors'
 import rateLimiter from 'express-rate-limit'
 import helmet from 'helmet'
 import mongoSanitize from 'express-mongo-sanitize'
+import expressWinston from 'express-winston'
 
 // Configure dotenv
 import '@/config/dotenv'
@@ -39,6 +39,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cookieParser(process.env.JWT_SECRET))
 
+// Logger middleware
+app.use(expressWinston.logger({ winstonInstance: logger }))
+
 // Configure routes
 configureRoutes(app)
 
@@ -51,7 +54,7 @@ app.use(notFound)
 // Default error handler
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3002
 
 const start = async () => {
   try {

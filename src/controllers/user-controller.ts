@@ -29,9 +29,7 @@ class UserController implements IUserController {
       nickname: req.body.nickname,
       description: req.body.description,
       email: req.body.email,
-      secondaryEmail: req.body.secondaryEmail,
       password: req.body.password,
-      avatar: req.body.avatar,
       verificationToken,
     })
 

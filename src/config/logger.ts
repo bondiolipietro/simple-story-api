@@ -9,11 +9,7 @@ import 'winston-mongodb'
 
 const mongoUserPass = mongoConfig.username ? `${mongoConfig.username}:${mongoConfig.password}@` : ''
 
-const transports: TransportStream[] = [
-  new winston.transports.Console({
-    level: 'info',
-  }),
-]
+const transports: TransportStream[] = [new winston.transports.Console()]
 
 const loggerConfigBase: LoggerOptions = {
   format: winston.format.combine(
@@ -32,7 +28,7 @@ const generateLoggerConfig = () => {
   if (process.env.ENABLE_SEQ_LOGGER === 'true') {
     transports.push(
       new SeqTransport({
-        serverUrl: process.env.SEQ_SERVER_URL,
+        serverUrl: `http://${process.env.SEQ_URL}:${process.env.SEQ_PORT}`,
         apiKey: process.env.SEQ_API_KEY,
         onError: (error: unknown) => {
           if (process.env.NODE_ENV !== 'production') {

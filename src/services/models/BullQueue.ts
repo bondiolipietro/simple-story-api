@@ -38,21 +38,19 @@ abstract class BullQueue<T> {
 
   protected abstract getJobHandler(): (job: Bull.Job<T>) => Promise<void>
 
-  public async add(data: T | T[]): Promise<void> {
-    if (Array.isArray(data)) {
-      logger.info(`Adding list of jobs to ${this._queue.name} queue...`)
-      const parsedJobs = data.map((jobData) => {
-        return { data: jobData }
-      })
-
-      await this._queue.addBulk(parsedJobs)
-
-      return
-    }
-
+  public async add(data: T): Promise<Bull.Job> {
     logger.info(`Adding job to ${this._queue.name} queue...`)
 
-    await this._queue.add(data)
+    return await this._queue.add(data)
+  }
+
+  public async addBulk(data: T[]): Promise<Bull.Job[]> {
+    logger.info(`Adding list of jobs to ${this._queue.name} queue...`)
+    const parsedJobs = data.map((jobData) => {
+      return { data: jobData }
+    })
+
+    return await this._queue.addBulk(parsedJobs)
   }
 
   public async process() {

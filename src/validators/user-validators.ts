@@ -3,10 +3,9 @@ import * as yup from 'yup'
 const newUserBodySchema = yup.object({
   name: yup.string().required(),
   nickname: yup.string().required(),
-  password: yup.string().required(),
   description: yup.string().required(),
-  email: yup.string().required(),
-  avatar: yup.string().required(),
+  email: yup.string().email().required(),
+  password: yup.string().required(),
 })
 
 const createUserReqSchema = yup.object({
@@ -22,14 +21,14 @@ const updateUserReqSchema = yup.object({
 
 const verifyUserEmailReqSchema = yup.object({
   body: yup.object({
-    email: yup.string().required(),
+    email: yup.string().email().required(),
     token: yup.string().required(),
   }),
 })
 
 const resendVerificationEmailReqSchema = yup.object({
   body: yup.object({
-    email: yup.string().required(),
+    email: yup.string().email().required(),
   }),
 })
 

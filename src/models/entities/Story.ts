@@ -100,43 +100,51 @@ const StorySchema = new Schema<IStory>(
 )
 
 StorySchema.method('likeStory', async function (userId: string) {
-  const like = await StoryUserAction.findOne({ storyId: this._id, userId, type: 'like' })
+  const storyUserAction = await StoryUserAction.findOne({ storyId: this._id, userId })
+  this.analytics.likes += 1
 
-  if (!like) {
-    this.analytics.likes += 1
-
-    await StoryUserAction.create({
+  if (!storyUserAction) {
+    StoryUserAction.create({
       story: this._id,
       user: userId,
-      action: 'like',
+      liked: true,
     })
-
-    await this.save()
+  } else {
+    storyUserAction.liked = true
+    storyUserAction.save()
   }
+
+  await this.save()
 })
 
 StorySchema.method('dislikeStory', async function (userId: string) {
   this.analytics.likes -= 1
 
-  await StoryUserAction.deleteOne({ storyId: this._id, userId, type: 'like' })
+  const storyUserAction = await StoryUserAction.findOne({ storyId: this._id, userId })
+
+  if (storyUserAction) {
+    storyUserAction.updateOne({ liked: false })
+  }
 
   await this.save()
 })
 
 StorySchema.method('viewStory', async function (userId: string) {
-  const view = await StoryUserAction.findOne({ storyId: this._id, userId, type: 'view' })
+  this.analytics.views += 1
+  const storyUserAction = await StoryUserAction.findOne({ storyId: this._id, userId })
 
-  if (!view) {
-    this.analytics.views += 1
-
-    await StoryUserAction.create({
+  if (!storyUserAction) {
+    StoryUserAction.create({
       story: this._id,
       user: userId,
-      action: 'view',
+      viewCount: 1,
+      lastViewed: Date.now(),
     })
-
-    await this.save()
+  } else {
+    storyUserAction.incrementViewCount()
   }
+
+  await this.save()
 })
 
 const Story = model<IStoryDocument, IStoryModel>('Story', StorySchema)
