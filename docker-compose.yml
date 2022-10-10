@@ -1,0 +1,86 @@
+version: '3.9'
+
+networks:
+  simple-story-network:
+    driver: bridge
+
+volumes:
+  redisData:
+    driver: local
+  seqlogData:
+    driver: local
+  mongodbData:
+    driver: local
+
+services:
+  simple-story-api:
+    build: .
+    volumes:
+      - .:/usr/src/api
+    networks:
+      - simple-story-network
+    depends_on:
+      - simple-story-mongodb
+      - simple-story-redis
+      - simple-story-seqcli
+    links:
+      - simple-story-redis
+      - simple-story-mongodb
+    ports:
+      - 3002:3002
+
+  simple-story-redis:
+    image: bitnami/redis:latest
+    restart: always
+    environment:
+      - REDIS_PASSWORD=$REDIS_PASS
+    ports:
+      - "6379:6379"
+    networks:
+      - simple-story-network
+    volumes:
+      - redisData:/bitnami/redis/data
+
+  simple-story-mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=$MONGO_USER
+      - MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASS
+    ports:
+      - "27017:27017"
+    networks:
+      - simple-story-network
+    volumes:
+      - mongodbData:/data/db
+
+  simple-story-seqlog:
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_API_INGESTIONPORT=$SEQ_PORT
+    ports:
+      - "80:80"
+      - "5341:5341"
+    networks:
+      - simple-story-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    volumes:
+      - seqlogData:/data
+
+  simple-story-seqcli:
+    image: datalust/seqcli:latest
+    command: "apikey create --title='simple-story' --server='http://simple-story-seqlog' --token='$SEQ_API_KEY' --permissions='Ingest'"
+    environment:
+      - SEQ_API_KEY=$SEQ_API_KEY
+    networks:
+      - simple-story-network
+    depends_on:
+      simple-story-seqlog:
+        condition: service_healthy
+    links:
+      - simple-story-seqlog
